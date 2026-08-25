@@ -34,9 +34,12 @@ struct LiveVitalsView: View {
         .navigationTitle("Live Vitals")
         .task {
             await model.health.requestAuthorization()
+            await model.health.refreshTodayVitals()
             model.health.startLiveVitals()
         }
-        .onDisappear { model.health.stopLiveVitals() }
+        .onDisappear {
+            model.health.stopLiveVitals()
+        }
     }
 
     private func vital(title: String, value: String, unit: String, symbol: String, tint: Color) -> some View {

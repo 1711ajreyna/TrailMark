@@ -177,6 +177,8 @@ public final class HealthKitManager {
         }
         energyTrend = trend
     }
+    
+
 
     // MARK: - Write a workout (curriculum 1.3 / 3.2)
 
@@ -215,11 +217,17 @@ public final class HealthKitManager {
 
     // MARK: - Live vitals (curriculum 2.3)
 
-    /// Starts anchored queries that push heart rate / steps / energy into
-    /// `liveVitals` as new samples arrive. Call `stopLiveVitals()` on disappear.
+    /// Starts long-running anchored queries for heart rate, steps, and active
+    /// energy. Heart rate uses the newest sample directly. Step/energy changes
+    /// trigger a fresh cumulative statistics query so the UI keeps showing the
+    /// correct total for the current day rather than only the newest sample.
     public func startLiveVitals() {
         guard authorization == .authorized, liveQueries.isEmpty else { return }
+
         startHeartRateStream()
+        startDailyTotalStream(for: stepType)
+        startDailyTotalStream(for: energyType)
+
         Task {
             await refreshTodayVitals()
         }
@@ -231,14 +239,22 @@ public final class HealthKitManager {
     }
 
     private func startHeartRateStream() {
-        let predicate = HKQuery.predicateForSamples(withStart: Calendar.current.startOfDay(for: Date()), end: nil)
+        let startOfDay = Calendar.current.startOfDay(for: Date())
+        let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: nil)
+
         let handler: (HKAnchoredObjectQuery, [HKSample]?, [HKDeletedObject]?, HKQueryAnchor?, Error?) -> Void = { [weak self] _, samples, _, _, _ in
-            guard let latest = (samples as? [HKQuantitySample])?.last else { return }
-            let bpm = latest.quantity.doubleValue(for: HKUnit.count().unitDivided(by: .minute()))
+            guard let latest = (samples as? [HKQuantitySample])?
+                .max(by: { $0.endDate < $1.endDate }) else { return }
+
+            let bpm = latest.quantity.doubleValue(
+                for: HKUnit.count().unitDivided(by: .minute())
+            )
+
             Task { @MainActor in
                 self?.liveVitals.heartRateBPM = bpm
             }
         }
+
         let query = HKAnchoredObjectQuery(type: heartRateType,
                                           predicate: predicate,
                                           anchor: nil,
@@ -249,12 +265,46 @@ public final class HealthKitManager {
         liveQueries.append(query)
     }
 
-    /// One-shot refresh of today's steps + energy used by the live vitals view.
+    /// Watches a cumulative HealthKit type for inserts/deletes. When HealthKit
+    /// saves a new step or active-energy sample, recompute today's totals.
+    private func startDailyTotalStream(for type: HKQuantityType) {
+        let startOfDay = Calendar.current.startOfDay(for: Date())
+        let predicate = HKQuery.predicateForSamples(withStart: startOfDay, end: nil)
+
+        let handler: (HKAnchoredObjectQuery, [HKSample]?, [HKDeletedObject]?, HKQueryAnchor?, Error?) -> Void = { [weak self] _, _, _, _, _ in
+            Task { [weak self] in
+                await self?.refreshTodayVitals()
+            }
+        }
+
+        let query = HKAnchoredObjectQuery(type: type,
+                                          predicate: predicate,
+                                          anchor: nil,
+                                          limit: HKObjectQueryNoLimit,
+                                          resultsHandler: handler)
+        query.updateHandler = handler
+        store.execute(query)
+        liveQueries.append(query)
+    }
+
+    /// Recomputes today's cumulative steps and active energy. This is used both
+    /// for the initial snapshot and whenever the anchored queries report a change.
     public func refreshTodayVitals() async {
+        guard authorization == .authorized else { return }
+
         let startOfDay = Calendar.current.startOfDay(for: Date())
         async let steps = sumQuantity(stepType, unit: .count(), since: startOfDay)
         async let energy = sumQuantity(energyType, unit: .kilocalorie(), since: startOfDay)
-        liveVitals.steps = await steps
-        liveVitals.activeEnergyKcal = await energy
+
+        let stepTotal = await steps
+        let energyTotal = await energy
+
+        liveVitals.steps = stepTotal
+        liveVitals.activeEnergyKcal = energyTotal
+
+        // Keep the shared Today snapshot in sync with the live watch values.
+        todaySummary.steps = stepTotal
+        todaySummary.activeEnergyKcal = energyTotal
+        todaySummary.date = startOfDay
     }
 }
