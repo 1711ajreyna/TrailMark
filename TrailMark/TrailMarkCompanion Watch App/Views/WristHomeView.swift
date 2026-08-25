@@ -23,17 +23,25 @@ struct WristHomeView: View {
 
     var body: some View {
         Section {
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text("Steps today")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
+
                 Text(summary.stepsText)
                     .font(.system(size: 44, weight: .bold, design: .rounded))
-                    .foregroundStyle(.orange)
                     .contentTransition(.numericText())
+
                 Text(summary.distanceText)
                     .font(.footnote)
                     .foregroundStyle(.secondary)
+
+                NavigationLink {
+                    WristMemoView()
+                } label: {
+                    Label("Record Memo", systemImage: "mic.fill")
+                }
+                .buttonStyle(.borderedProminent)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .listRowBackground(Color.clear)
