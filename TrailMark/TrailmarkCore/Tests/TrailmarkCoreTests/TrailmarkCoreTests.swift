@@ -1,11 +1,3 @@
-//
-//  TrailmarkCoreTests.swift
-//  TrailmarkCore
-//
-//  Tests for the pure, testable parts of the core — the logic that does NOT
-//  need device sensors (which the curriculum notes can't be simulated).
-//
-
 import XCTest
 import CoreLocation
 @testable import TrailmarkCore

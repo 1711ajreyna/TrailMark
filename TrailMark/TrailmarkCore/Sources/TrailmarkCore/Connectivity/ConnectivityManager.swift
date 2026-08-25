@@ -1,22 +1,3 @@
-//
-//  ConnectivityManager.swift
-//  TrailmarkCore
-//
-//  Course 3.1 — WatchConnectivity. One wrapper used by both sides. It picks
-//  the right transfer type per payload:
-//
-//    • applicationContext  — "latest state" (today's summary). Coalesced; only
-//                            the newest value survives. Cheap, perfect for a
-//                            glanceable mirror.
-//    • transferUserInfo    — queued, guaranteed delivery of discrete records
-//                            (a finished workout / journey). Survives relaunch.
-//    • transferFile        — large binary payloads (a voice-memo file) with
-//                            metadata attached.
-//
-//  sendMessage (live) is intentionally avoided for these payloads: it requires
-//  the counterpart to be reachable *right now*, which a backgrounded phone isn't.
-//
-
 import Foundation
 import Observation
 

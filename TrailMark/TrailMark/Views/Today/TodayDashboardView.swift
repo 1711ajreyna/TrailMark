@@ -1,12 +1,3 @@
-//
-//  TodayDashboardView.swift
-//  TrailMark (iOS)
-//
-//  Course 1.1 — the "Today" dashboard. Shows today's steps, distance and active
-//  energy, refreshing on appear. Handles denied/undetermined states gracefully.
-//  No HealthKit calls live here — only in TrailmarkCore.
-//
-
 import SwiftUI
 import TrailmarkCore
 

@@ -1,11 +1,3 @@
-//
-//  RecordJourneyView.swift
-//  TrailMark (iOS)
-//
-//  Course 1.4 — records a coordinate track via the shared LocationManager and
-//  saves it as a Journey, attaching any memos captured during the window.
-//
-
 import SwiftUI
 import MapKit
 import TrailmarkCore

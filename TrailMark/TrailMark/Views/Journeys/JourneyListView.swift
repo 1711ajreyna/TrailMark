@@ -1,11 +1,3 @@
-//
-//  JourneyListView.swift
-//  TrailMark (iOS)
-//
-//  Course 1.4 — the journey list and the entry point to recording a new one.
-//  A journey unites a route, health, and media into one record.
-//
-
 import SwiftUI
 import TrailmarkCore
 

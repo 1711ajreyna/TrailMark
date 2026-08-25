@@ -1,12 +1,6 @@
-//
-//  Coding.swift
-//  TrailmarkCore
-//
+import Foundation
 //  Shared JSON coders with a stable date strategy. Used by the media index,
 //  the journey store, and WatchConnectivity payloads so every layer agrees.
-//
-
-import Foundation
 
 public extension JSONEncoder {
     static let trailmark: JSONEncoder = {

@@ -1,13 +1,3 @@
-//
-//  ContentView.swift
-//  TrailMarkCompanion Watch App
-//
-//  Created by Ramses Garcia on 20/06/26.
-//
-//  The wrist home (Course 2.1): a glanceable headline metric and one quick
-//  action up top, then navigation to the wrist-appropriate features.
-//
-
 import SwiftUI
 import TrailmarkCore
 

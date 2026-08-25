@@ -1,12 +1,3 @@
-//
-//  MediaStore.swift
-//  TrailmarkCore
-//
-//  Course 1.2 / 2.2 — persists media files + metadata. The single source of
-//  truth for memos on both phone and wrist. Files live on disk; a JSON index
-//  tracks metadata. Deleting a memo also deletes its file (curriculum 1.2).
-//
-
 import Foundation
 import AVFoundation
 import CoreLocation

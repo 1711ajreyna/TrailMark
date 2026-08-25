@@ -1,12 +1,3 @@
-//
-//  HealthKitManager.swift
-//  TrailmarkCore
-//
-//  The single HealthKit layer used by BOTH the iOS app and the watch app.
-//  Every HealthKit call in the whole project lives here — views never touch
-//  HealthKit directly (curriculum 1.1 / 1.3 / 2.3).
-//
-
 import Foundation
 import HealthKit
 import Observation
@@ -56,7 +47,7 @@ public final class HealthKitManager {
         [energyType, distanceType, HKObjectType.workoutType()]
     }
 
-    // MARK: - Authorization (curriculum 1.1)
+    // MARK: - Authorization
 
     /// Requests read + write access. Purpose strings live in the app's Info.plist
     /// (see Docs/MANUAL_SETUP.md) — HealthKit will not show the sheet without them.
@@ -77,7 +68,7 @@ public final class HealthKitManager {
         }
     }
 
-    // MARK: - Today's activity (curriculum 1.1)
+    // MARK: - Today's activity
 
     /// Refreshes steps, distance and active energy for today. Safe to call
     /// from `.onAppear`; failures collapse to an empty summary rather than crash.
@@ -111,7 +102,7 @@ public final class HealthKitManager {
         }
     }
 
-    // MARK: - Sleep (curriculum 1.3)
+    // MARK: - Sleep
 
     /// Reads last night's `sleepAnalysis` samples and sums the "asleep" stages.
     public func refreshLastNightSleep() async {
@@ -146,7 +137,7 @@ public final class HealthKitManager {
         sleep = SleepSummary(asleepSeconds: total, date: calendar.startOfDay(for: now))
     }
 
-    // MARK: - 7-day active-energy trend (curriculum 1.3)
+    // MARK: - 7-day active-energy trend
 
     /// Builds a daily active-energy collection for the last 7 days using
     /// `HKStatisticsCollectionQuery`, then maps it to chart points.
@@ -180,7 +171,7 @@ public final class HealthKitManager {
     
 
 
-    // MARK: - Write a workout (curriculum 1.3 / 3.2)
+    // MARK: - Write a workout
 
     /// Saves a finished activity to HealthKit as an `HKWorkout` using the modern
     /// `HKWorkoutBuilder`. After this returns the workout appears in the Health app.
@@ -215,7 +206,7 @@ public final class HealthKitManager {
         _ = try await builder.finishWorkout()
     }
 
-    // MARK: - Live vitals (curriculum 2.3)
+    // MARK: - Live vitals
 
     /// Starts long-running anchored queries for heart rate, steps, and active
     /// energy. Heart rate uses the newest sample directly. Step/energy changes

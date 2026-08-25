@@ -1,12 +1,3 @@
-//
-//  WatchModel.swift
-//  TrailMarkCompanion Watch App
-//
-//  Owns the shared TrailmarkCore managers on the wrist. The whole point of the
-//  curriculum: the watch REUSES the same managers as the phone — no duplicated
-//  model or HealthKit code (Course 2.1).
-//
-
 import Foundation
 import Observation
 import WidgetKit

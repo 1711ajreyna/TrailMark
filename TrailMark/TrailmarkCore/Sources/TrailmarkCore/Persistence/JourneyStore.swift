@@ -1,13 +1,8 @@
-//
-//  JourneyStore.swift
-//  TrailmarkCore
-//
-//  Course 1.4 / 3.1 — persists journeys and is the destination for journeys
-//  synced from the watch. Backed by a JSON file in Application Support.
-//
-
 import Foundation
 import Observation
+
+// persists journeys and is the destination for journeys
+//  synced from the watch. Backed by a JSON file in Application Support.
 
 @MainActor
 @Observable

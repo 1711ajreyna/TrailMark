@@ -1,12 +1,3 @@
-//
-//  AudioRecorder.swift
-//  TrailmarkCore
-//
-//  Course 1.2 / 2.2 — voice-memo recording with AVAudioRecorder. Shared by the
-//  phone and the wrist; only the audio-session category setup differs, handled
-//  here so callers don't have to think about it.
-//
-
 import Foundation
 import AVFoundation
 import Observation

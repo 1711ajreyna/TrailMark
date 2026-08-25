@@ -1,11 +1,3 @@
-//
-//  RecordAudioView.swift
-//  TrailMark (iOS)
-//
-//  Course 1.2 — voice memo capture UI. Recording itself lives in
-//  TrailmarkCore.AudioRecorder; this view is just the controls + a live timer.
-//
-
 import SwiftUI
 import TrailmarkCore
 

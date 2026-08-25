@@ -1,12 +1,3 @@
-//
-//  RecoveryView.swift
-//  TrailMark (iOS)
-//
-//  Course 1.3 — two-way HealthKit. Saves a sample activity as an HKWorkout
-//  (verify it in the Health app), reads last night's sleep, and charts the last
-//  7 days of active energy with Swift Charts. All queries live in TrailmarkCore.
-//
-
 import SwiftUI
 import Charts
 import TrailmarkCore

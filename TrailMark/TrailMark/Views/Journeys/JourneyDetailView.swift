@@ -1,12 +1,3 @@
-//
-//  JourneyDetailView.swift
-//  TrailMark (iOS)
-//
-//  Course 1.4 — the unified "Journey detail" screen: route polyline + memo pins
-//  on a map, the activity stats, and the captured media in one place. This is
-//  where the three Course-1 builds come together.
-//
-
 import SwiftUI
 import MapKit
 import TrailmarkCore

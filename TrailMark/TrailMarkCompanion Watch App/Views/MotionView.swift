@@ -1,13 +1,3 @@
-//
-//  MotionView.swift
-//  TrailMarkCompanion Watch App
-//
-//  Course 2.4 — sensing motion at the source. Surfaces a derived signal
-//  (cadence + activity type) from Core Motion via the shared MotionManager. The
-//  wrist is the ideal place to sense motion; the cost of always-on sampling is
-//  the conversation Course 3.3 picks up.
-//
-
 import SwiftUI
 import TrailmarkCore
 

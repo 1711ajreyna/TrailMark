@@ -1,10 +1,3 @@
-//
-//  ActivitySummary.swift
-//  TrailmarkCore
-//
-//  Course 1.1 — the "Today" dashboard data.
-//
-
 import Foundation
 
 /// A snapshot of the day's headline activity metrics, read from HealthKit.

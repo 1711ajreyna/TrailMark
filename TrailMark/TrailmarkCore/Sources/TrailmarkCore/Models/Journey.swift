@@ -1,11 +1,3 @@
-//
-//  Journey.swift
-//  TrailmarkCore
-//
-//  Course 1.4 — the unified record that ties route + health + media together,
-//  and the payload synced wrist→pocket in Course 3.1.
-//
-
 import Foundation
 
 /// One adventure: where you went, how you moved, and what you captured.

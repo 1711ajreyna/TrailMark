@@ -1,10 +1,3 @@
-//
-//  WorkoutRecord.swift
-//  TrailmarkCore
-//
-//  Course 1.3 (write a sample workout) and 3.2 (live workout result).
-//
-
 import Foundation
 
 /// A completed activity, ready to be written to HealthKit as an `HKWorkout`

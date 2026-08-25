@@ -1,10 +1,3 @@
-//
-//  HealthInsights.swift
-//  TrailmarkCore
-//
-//  Course 1.3 (sleep + energy trend) and 2.3 (live vitals).
-//
-
 import Foundation
 
 /// Last night's sleep, distilled to a single duration.

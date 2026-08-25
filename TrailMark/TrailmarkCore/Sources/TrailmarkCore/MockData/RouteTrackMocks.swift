@@ -1,12 +1,3 @@
-//
-//  RouteTrack+Mock.swift
-//  TrailMarkCore
-//
-//  Sample tracks for SwiftUI previews and manual testing.
-//  Everything here is deterministic: same coordinates, timestamps and IDs on
-//  every launch, so previews never shift between runs.
-//
-
 import Foundation
 import CoreLocation
 

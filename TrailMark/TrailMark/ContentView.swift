@@ -1,13 +1,3 @@
-//
-//  ContentView.swift
-//  TrailMark
-//
-//  Created by Ramses Garcia on 20/06/26.
-//
-//  The iOS root: four tabs, one per Course-1 build. HealthKit authorization is
-//  requested once on launch (curriculum 1.1).
-//
-
 import SwiftUI
 import TrailmarkCore
 

@@ -1,16 +1,12 @@
-//
-//  VideoCaptureView.swift
-//  TrailMark (iOS)
-//
-//  Course 1.2 — wraps UIImagePickerController for short video capture. Uses the
-//  camera on a device; on the Simulator (no camera) it falls back to the photo
-//  library so the flow is still demonstrable.
-//
-
 import SwiftUI
 import AVFoundation
 import UIKit
 import UniformTypeIdentifiers
+
+// wraps UIImagePickerController for short video capture. Uses the
+//  camera on a device; on the Simulator (no camera) it falls back to the photo
+//  library so the flow is still demonstrable.
+//
 
 struct VideoCaptureView: UIViewControllerRepresentable {
     /// Called with the captured file URL and its duration in seconds.

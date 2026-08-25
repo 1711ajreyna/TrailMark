@@ -1,14 +1,3 @@
-//
-//  LiveWorkoutView.swift
-//  TrailMarkCompanion Watch App
-//
-//  Course 3.2 — a live workout session. Starts an HKWorkoutSession on the
-//  watch, keeps streaming heart rate / elapsed time / energy while backgrounded,
-//  and saves a real HKWorkout on finish (then syncs the result to the phone).
-//
-//  The session logic lives in TrailmarkCore.WorkoutSessionManager.
-//
-
 import SwiftUI
 import TrailmarkCore
 

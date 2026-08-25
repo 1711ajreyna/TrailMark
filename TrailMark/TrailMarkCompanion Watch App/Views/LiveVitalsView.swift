@@ -1,12 +1,3 @@
-//
-//  LiveVitalsView.swift
-//  TrailMarkCompanion Watch App
-//
-//  Course 2.3 — live vitals on the wrist. After authorization, shows current
-//  heart rate, steps and active energy, updating as values change. Reuses the
-//  shared TrailmarkCore HealthKit manager — no new HealthKit code on the watch.
-//
-
 import SwiftUI
 import TrailmarkCore
 

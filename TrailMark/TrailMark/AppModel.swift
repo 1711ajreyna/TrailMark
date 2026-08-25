@@ -1,12 +1,3 @@
-//
-//  AppModel.swift
-//  TrailMark (iOS)
-//
-//  Owns the long-lived managers from TrailmarkCore and wires up cross-device
-//  sync. Injected into the SwiftUI environment so every screen shares one
-//  instance of each manager (and therefore one source of truth).
-//
-
 import Foundation
 import Observation
 import TrailmarkCore

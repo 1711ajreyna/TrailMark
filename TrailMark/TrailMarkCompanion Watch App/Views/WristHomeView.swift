@@ -1,16 +1,3 @@
-//
-//  WristHomeView.swift
-//  TrailMarkCompanion Watch App
-//
-//  Course 2.1 — the glanceable home. One headline metric (today's steps) and
-//  the data is readable in about two seconds. Design choice: a single large,
-//  high-contrast number rather than a dashboard of tiles — watchOS guidelines
-//  favour one focused, glanceable piece of information over dense layouts.
-//
-//  Prefers the summary mirrored from the phone (Course 3.1) when present, and
-//  falls back to the watch's own HealthKit read otherwise.
-//
-
 import SwiftUI
 import TrailmarkCore
 

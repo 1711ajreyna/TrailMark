@@ -1,14 +1,9 @@
-//
-//  MotionManager.swift
-//  TrailmarkCore
-//
-//  Course 2.4 — sensing motion at the source (the wrist). Wraps Core Motion's
-//  pedometer (cadence), motion-activity classifier, and the accelerometer.
-//
-
 import Foundation
 import CoreMotion
 import Observation
+
+//  sensing motion at the source (the wrist). Wraps Core Motion's
+//  pedometer (cadence), motion-activity classifier, and the accelerometer.
 
 @MainActor
 @Observable

@@ -1,12 +1,3 @@
-//
-//  MemoDetailView.swift
-//  TrailMark (iOS)
-//
-//  Course 1.2 — plays a memo back. Video uses AVKit's VideoPlayer; audio uses
-//  the shared TrailmarkCore.AudioPlayer. Shows the capture location if geotagged
-//  (Course 1.4).
-//
-
 import SwiftUI
 import AVKit
 import MapKit

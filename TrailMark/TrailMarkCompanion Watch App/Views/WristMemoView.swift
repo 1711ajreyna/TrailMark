@@ -1,13 +1,3 @@
-//
-//  WristMemoView.swift
-//  TrailMarkCompanion Watch App
-//
-//  Course 2.2 — voice memos on the wrist. Records via the shared AudioRecorder,
-//  saves via the shared MediaStore, lists saved memos and plays one back. The
-//  interface is pared down to the essentials a wrist actually needs, and each
-//  saved memo is transferred to the phone (Course 3.1).
-//
-
 import SwiftUI
 import TrailmarkCore
 

@@ -1,10 +1,3 @@
-//
-//  MediaMemo.swift
-//  TrailmarkCore
-//
-//  Course 1.2 / 2.2 — the media model shared by phone and wrist.
-//
-
 import Foundation
 import CoreLocation
 

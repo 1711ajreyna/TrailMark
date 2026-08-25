@@ -1,19 +1,15 @@
-//
-//  WorkoutSessionManager.swift
-//  TrailmarkCore
-//
-//  Course 3.2 — a live workout session on the watch. HKWorkoutSession +
+#if os(watchOS)
+import Foundation
+import HealthKit
+import Observation
+
+// a live workout session on the watch. HKWorkoutSession +
 //  HKLiveWorkoutBuilder stream metrics and keep the app running in the
 //  background during an activity; the finished workout is saved to HealthKit.
 //
 //  HKWorkoutSession is watchOS-only, so the whole type is gated to watchOS.
 //  The iOS side consumes the *result* (a WorkoutRecord) over connectivity.
 //
-
-#if os(watchOS)
-import Foundation
-import HealthKit
-import Observation
 
 @MainActor
 @Observable

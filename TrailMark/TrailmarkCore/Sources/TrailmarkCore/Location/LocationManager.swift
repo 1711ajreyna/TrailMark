@@ -1,11 +1,3 @@
-//
-//  LocationManager.swift
-//  TrailmarkCore
-//
-//  Course 1.4 — the route engine. Requests when-in-use authorization, records
-//  a coordinate track, and exposes the current coordinate for geotagging memos.
-//
-
 import Foundation
 import CoreLocation
 import Observation

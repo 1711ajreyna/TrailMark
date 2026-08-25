@@ -1,14 +1,3 @@
-//
-//  FieldJournalView.swift
-//  TrailMark (iOS)
-//
-//  Course 1.2 — the field journal. Record voice + video memos, save them with
-//  metadata into the shared MediaStore, list them with thumbnails + duration,
-//  and open a detail view to play them back. Deleting removes the file too.
-//
-//  Memos are geotagged with the current location when captured (Course 1.4).
-//
-
 import SwiftUI
 import TrailmarkCore
 

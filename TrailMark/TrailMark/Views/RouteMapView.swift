@@ -1,10 +1,3 @@
-//
-//  RouteMapView.swift
-//  TrailMark_CH9
-//
-//  Draws a RouteTrack as a line on a map, framed so the whole route fits.
-//
-
 import SwiftUI
 import MapKit
 import TrailmarkCore

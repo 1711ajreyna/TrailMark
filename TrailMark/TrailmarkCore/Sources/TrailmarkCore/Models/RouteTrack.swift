@@ -1,10 +1,3 @@
-//
-//  RouteTrack.swift
-//  TrailmarkCore
-//
-//  Course 1.4 — the recorded coordinate track for a journey.
-//
-
 import Foundation
 import CoreLocation
 

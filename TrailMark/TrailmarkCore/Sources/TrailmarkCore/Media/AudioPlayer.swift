@@ -1,10 +1,3 @@
-//
-//  AudioPlayer.swift
-//  TrailmarkCore
-//
-//  Course 1.2 / 2.2 — plays a recorded voice memo back. Shared by phone + wrist.
-//
-
 import Foundation
 import AVFoundation
 import Observation

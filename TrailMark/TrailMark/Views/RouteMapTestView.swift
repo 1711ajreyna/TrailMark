@@ -1,11 +1,3 @@
-//
-//  RouteMapTestView.swift
-//  TrailMark_CH9
-//
-//  Scratch harness: flip between the mock tracks and check how each one renders.
-//  Not part of the real UI — delete it once the actual journey screens exist.
-//
-
 import SwiftUI
 import TrailmarkCore
 
