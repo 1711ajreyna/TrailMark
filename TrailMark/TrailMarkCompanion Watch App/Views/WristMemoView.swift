@@ -3,6 +3,7 @@ import TrailmarkCore
 
 struct WristMemoView: View {
     @Environment(WatchModel.self) private var model
+
     @State private var recorder = AudioRecorder()
     @State private var player = AudioPlayer()
 
@@ -12,9 +13,10 @@ struct WristMemoView: View {
                 Button {
                     recorder.isRecording ? finish() : begin()
                 } label: {
-                    Label(recorder.isRecording ? "Stop · \(elapsed)" : "Record",
-                          systemImage: recorder.isRecording ? "stop.circle.fill" : "mic.circle.fill")
-                        .foregroundStyle(recorder.isRecording ? .red : .accentColor)
+                    Label(
+                        recorder.isRecording ? "Stop . \(elapsed)" : "Record",
+                        systemImage: recorder.isRecording  ? "stop.circle.fill" : "mic.circle.fill"
+                    ).foregroundStyle(recorder.isRecording ? .red : .accentColor)
                 }
             }
 
@@ -43,22 +45,29 @@ struct WristMemoView: View {
         .task(id: recorder.isRecording) {
             while recorder.isRecording && !Task.isCancelled {
                 recorder.tick()
-                try? await Task.sleep(for: .seconds(0.2))
+                try? await Task.sleep(for: .seconds(0.5))
             }
         }
     }
 
-    private var elapsed: String {
-        let s = Int(recorder.elapsed)
-        return String(format: "%d:%02d", s / 60, s % 60)
-    }
-
     private func begin() {
-        try? recorder.start()
+        try? recorder.startRecording()
     }
 
     private func finish() {
         guard let result = recorder.stop() else { return }
+        // Save locally and push the file to the phone in one step.
         model.saveAndSync(memoFrom: result.url, duration: result.duration)
     }
+
+    private var elapsed: String {
+        let duration = Int(recorder.elapsedTime)
+        return String(format: "%d:%02d", duration / 60, duration % 60)
+    }
+
+}
+
+#Preview {
+    WristMemoView()
+        .environment(WatchModel())
 }

@@ -1,6 +1,11 @@
 import SwiftUI
 import TrailmarkCore
 
+// The field journal: record voice + video memos, save them with metadata into the
+// shared MediaStore, list them with thumbnails + duration, and open a detail view
+// to play them back. Deleting a row removes the file from disk too.
+//
+// Memos are geotagged with the current location when captured.
 struct FieldJournalView: View {
     @Environment(AppModel.self) private var model
 
@@ -11,9 +16,11 @@ struct FieldJournalView: View {
         NavigationStack {
             Group {
                 if model.media.memos.isEmpty {
-                    ContentUnavailableView("No memos yet",
-                                           systemImage: "waveform",
-                                           description: Text("Record a voice or video memo to start your field journal."))
+                    ContentUnavailableView(
+                        "No memos yet",
+                        systemImage: "waveform",
+                        description: Text("Record a voice or video memo to start your field journal.")
+                    )
                 } else {
                     List {
                         ForEach(model.media.memos) { memo in
@@ -53,17 +60,20 @@ struct FieldJournalView: View {
     }
 
     private func saveVideo(url: URL, duration: TimeInterval) {
-        try? model.media.add(kind: .video,
-                             movingFileFrom: url,
-                             duration: duration,
-                             coordinate: model.location.currentCoordinate)
+        _ = try? model.media.add(
+            kind: .video,
+            movingFileFrom: url,
+            duration: duration,
+            coordinate: model.location.currentCoordinate
+        )
     }
 }
 
-/// One row: thumbnail (video) or waveform icon (audio), title, duration.
+/// One row: thumbnail for video, waveform icon for audio, plus title and duration.
 struct MemoRow: View {
     @Environment(AppModel.self) private var model
     let memo: MediaMemo
+
     @State private var thumbnail: UIImage?
 
     var body: some View {

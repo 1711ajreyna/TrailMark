@@ -1,3 +1,13 @@
+//
+//  ContentView.swift
+//  TrailMark_CH9
+//
+//  Created by Ramses Garcia on 03/08/26.
+//
+//  The iOS root: one tab per build. HealthKit authorization is requested once on
+//  launch, then today's data loads and gets mirrored to the wrist.
+//
+
 import SwiftUI
 import TrailmarkCore
 
@@ -19,7 +29,6 @@ struct ContentView: View {
                 .tabItem { Label("Journeys", systemImage: "map.fill") }
         }
         .task {
-            // Request HealthKit access on launch, then load today's data.
             await model.health.requestAuthorization()
             await model.health.refreshToday()
             model.mirrorTodayToWatch()

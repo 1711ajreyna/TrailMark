@@ -3,25 +3,16 @@ import Foundation
 import HealthKit
 import Observation
 
-// a live workout session on the watch. HKWorkoutSession +
-//  HKLiveWorkoutBuilder stream metrics and keep the app running in the
-//  background during an activity; the finished workout is saved to HealthKit.
-//
-//  HKWorkoutSession is watchOS-only, so the whole type is gated to watchOS.
-//  The iOS side consumes the *result* (a WorkoutRecord) over connectivity.
-//
-
 @MainActor
 @Observable
 public final class WorkoutSessionManager: NSObject {
-
     public private(set) var isWorkoutInProgress = false
     public private(set) var heartRate: Double = 0
     public private(set) var activeEnergyKcal: Double = 0
     public private(set) var distanceMeters: Double = 0
     public private(set) var startDate: Date?
 
-    /// Called when a session ends with the assembled record (for connectivity sync).
+    // Called when a session ends with the assembled record
     public var onFinish: ((WorkoutRecord) -> Void)?
 
     private let store = HKHealthStore()
@@ -35,10 +26,9 @@ public final class WorkoutSessionManager: NSObject {
         return Date().timeIntervalSince(startDate)
     }
 
-    // MARK: - Lifecycle
-
     public func start(activity: HKWorkoutActivityType = .walking) {
         guard !isWorkoutInProgress else { return }
+
         let configuration = HKWorkoutConfiguration()
         configuration.activityType = activity
         configuration.locationType = .outdoor
@@ -51,12 +41,12 @@ public final class WorkoutSessionManager: NSObject {
             session.delegate = self
             builder.delegate = self
 
-            self.session = session
             self.builder = builder
+            self.session = session
 
             let now = Date()
             session.startActivity(with: now)
-            builder.beginCollection(withStart: now) { [weak self] _, _ in
+            builder.beginCollection(withStart: now) { [weak self] completion, error in
                 Task { @MainActor in
                     self?.isWorkoutInProgress = true
                     self?.startDate = now
@@ -69,10 +59,10 @@ public final class WorkoutSessionManager: NSObject {
 
     public func end() {
         guard let session, let builder else { return }
+
         let end = Date()
-        session.end()
-        builder.endCollection(withEnd: end) { [weak self] _, _ in
-            builder.finishWorkout { _, _ in
+        builder.endCollection(withEnd: end) { [weak self] _, _  in
+            builder.finishWorkout() { _, _ in
                 Task { @MainActor in self?.finalize(end: end) }
             }
         }
@@ -93,31 +83,31 @@ public final class WorkoutSessionManager: NSObject {
     }
 }
 
-// MARK: - HKWorkoutSessionDelegate
-
 extension WorkoutSessionManager: HKWorkoutSessionDelegate {
-    nonisolated public func workoutSession(_ workoutSession: HKWorkoutSession,
-                                           didChangeTo toState: HKWorkoutSessionState,
-                                           from fromState: HKWorkoutSessionState,
-                                           date: Date) {
-        Task { @MainActor in
-            self.isWorkoutInProgress = (toState == .running)
-        }
+    nonisolated public func workoutSession(
+        _ workoutSession: HKWorkoutSession,
+        didChangeTo toState: HKWorkoutSessionState,
+        from fromState: HKWorkoutSessionState,
+        date: Date
+    ) {
+        Task { @MainActor in self.isWorkoutInProgress = (toState == .running) }
     }
 
-    nonisolated public func workoutSession(_ workoutSession: HKWorkoutSession,
-                                           didFailWithError error: Error) {
+    nonisolated public func workoutSession(
+        _ workoutSession: HKWorkoutSession,
+        didFailWithError error: any Error
+    ) {
         Task { @MainActor in self.isWorkoutInProgress = false }
     }
 }
 
-// MARK: - HKLiveWorkoutBuilderDelegate
-
 extension WorkoutSessionManager: HKLiveWorkoutBuilderDelegate {
     nonisolated public func workoutBuilderDidCollectEvent(_ workoutBuilder: HKLiveWorkoutBuilder) {}
 
-    nonisolated public func workoutBuilder(_ workoutBuilder: HKLiveWorkoutBuilder,
-                                           didCollectDataOf collectedTypes: Set<HKSampleType>) {
+    nonisolated public func workoutBuilder(
+        _ workoutBuilder: HKLiveWorkoutBuilder,
+        didCollectDataOf collectedTypes: Set<HKSampleType>
+    ) {
         for type in collectedTypes {
             guard let quantityType = type as? HKQuantityType,
                   let statistics = workoutBuilder.statistics(for: quantityType) else { continue }

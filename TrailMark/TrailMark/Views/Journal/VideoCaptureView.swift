@@ -3,11 +3,9 @@ import AVFoundation
 import UIKit
 import UniformTypeIdentifiers
 
-// wraps UIImagePickerController for short video capture. Uses the
-//  camera on a device; on the Simulator (no camera) it falls back to the photo
-//  library so the flow is still demonstrable.
-//
-
+// Wraps UIImagePickerController for short video capture. On a device that's the
+// camera; the Simulator has none, so it falls back to the photo library and the
+// flow is still demonstrable.
 struct VideoCaptureView: UIViewControllerRepresentable {
     /// Called with the captured file URL and its duration in seconds.
     let onCapture: (URL, TimeInterval) -> Void
@@ -15,7 +13,6 @@ struct VideoCaptureView: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> UIImagePickerController {
         let picker = UIImagePickerController()
         picker.delegate = context.coordinator
-        // The Simulator has no camera; fall back to the library there.
         picker.sourceType = UIImagePickerController.isSourceTypeAvailable(.camera) ? .camera : .photoLibrary
         picker.mediaTypes = [UTType.movie.identifier]
         picker.videoQuality = .typeMedium
@@ -29,6 +26,7 @@ struct VideoCaptureView: UIViewControllerRepresentable {
 
     func makeCoordinator() -> Coordinator { Coordinator(onCapture: onCapture) }
 
+    @MainActor
     final class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
         let onCapture: (URL, TimeInterval) -> Void
 
@@ -36,12 +34,19 @@ struct VideoCaptureView: UIViewControllerRepresentable {
             self.onCapture = onCapture
         }
 
-        func imagePickerController(_ picker: UIImagePickerController,
-                                   didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+        func imagePickerController(
+            _ picker: UIImagePickerController,
+            didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
+        ) {
             picker.dismiss(animated: true)
             guard let url = info[.mediaURL] as? URL else { return }
-            let duration = CMTimeGetSeconds(AVURLAsset(url: url).duration)
-            onCapture(url, duration.isFinite ? duration : 0)
+            // Reading the duration is async on modern AVFoundation, so the memo is
+            // handed over once the load lands rather than inline.
+            let asset = AVURLAsset(url: url)
+            Task {
+                let seconds = (try? await asset.load(.duration)).map(CMTimeGetSeconds) ?? 0
+                onCapture(url, seconds.isFinite ? seconds : 0)
+            }
         }
 
         func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {

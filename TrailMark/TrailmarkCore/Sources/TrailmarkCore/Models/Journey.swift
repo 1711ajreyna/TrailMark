@@ -1,26 +1,33 @@
 import Foundation
 
-/// One adventure: where you went, how you moved, and what you captured.
+
+// Adventure Struct: Where you went, how you moved, how that affected your health and everything you capture
 public struct Journey: Identifiable, Hashable, Sendable, Codable {
     public let id: UUID
-    public var title: String
-    public var startedAt: Date
-    public var endedAt: Date?
+    public let title: String
+    public let startedAt: Date
+    public let endedAt: Date?
 
-    /// The recorded coordinate track.
+    // The recorded coordinate track
+    /// [(altitude, longitude, latitude), ....]
     public var track: RouteTrack
-    /// IDs of memos captured during this journey (resolved via `MediaStore`).
+
+    // IDs for audio memos (storing the references for the files)
     public var memoIDs: [UUID]
-    /// The activity totals, if a workout was recorded.
+
+    // The activity totals, if a workout was recorded alongside the route
     public var workout: WorkoutRecord?
 
-    public init(id: UUID = UUID(),
-                title: String = "Untitled journey",
-                startedAt: Date = Date(),
-                endedAt: Date? = nil,
-                track: RouteTrack = RouteTrack(),
-                memoIDs: [UUID] = [],
-                workout: WorkoutRecord? = nil) {
+
+    public init(
+        id: UUID = UUID(),
+        title: String = "Untitled Journey",
+        startedAt: Date = Date(),
+        endedAt: Date? = nil,
+        track: RouteTrack = RouteTrack(),
+        memoIDs: [UUID] = [],
+        workout: WorkoutRecord? = nil
+    ) {
         self.id = id
         self.title = title
         self.startedAt = startedAt
@@ -30,6 +37,10 @@ public struct Journey: Identifiable, Hashable, Sendable, Codable {
         self.workout = workout
     }
 
+    // MARK: - Computed Properties
+
+    /// Prefer the workout's own distance when there is one — HealthKit measures it
+    /// better than summing GPS points does.
     public var distanceMeters: Double {
         workout?.distanceMeters ?? track.distanceMeters
     }

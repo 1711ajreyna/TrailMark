@@ -15,52 +15,52 @@ struct RouteMapView: View {
             ContentUnavailableView(
                 "No Route Recorded",
                 systemImage: "map",
-                description: Text("Start a journey to see it drawn here.")
+                description: Text("Start a journey to see it here.")
             )
         } else {
             Map(position: $camera) {
                 if track.points.count > 1 {
-                    // Casing underneath so the route stays readable over dark terrain.
+                    // layer 1
                     MapPolyline(coordinates: track.coordinates)
-                        .stroke(.white.opacity(0.7), style: strokeStyle(width: lineWidth + 3))
+                        .stroke(.red.opacity(0.7), style: StrokeStyle(lineWidth: lineWidth + 5, lineCap: .round, lineJoin: .round))
 
+                    // layer 2
                     MapPolyline(coordinates: track.coordinates)
-                        .stroke(.blue, style: strokeStyle(width: lineWidth))
+                        .stroke(.blue, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round))
                 }
 
                 if showsEndpoints {
                     if let start = track.points.first {
                         Annotation("Start", coordinate: start.coordinate) {
-                            endpoint(color: .green, systemImage: "flag.fill")
+                            Image(systemName: "flag.fill")
+                                .font(.caption2)
+                                .foregroundStyle(.white)
+                                .padding(6)
+                                .background(.green, in: .circle)
+                                .overlay(Circle().stroke(.white, lineWidth: 2))
+                                .shadow(radius: 2, y: 1)
                         }
                     }
 
                     if let end = track.points.last, track.points.count > 1 {
                         Annotation("Finish", coordinate: end.coordinate) {
-                            endpoint(color: .red, systemImage: "flag.checkered")
+                            Image(systemName: "flag.checkered")
+                                .font(.caption2)
+                                .foregroundStyle(.white)
+                                .padding(6)
+                                .background(.red, in: .circle)
+                                .overlay(Circle().stroke(.white, lineWidth: 2))
+                                .shadow(radius: 2, y: 1)
                         }
                     }
                 }
             }
             .mapStyle(.standard(elevation: .realistic))
             .task(id: track) {
-                camera = Self.cameraPosition(for: track)
+                camera  = Self.cameraPosition(for: track)
             }
+
         }
-    }
-
-    private func strokeStyle(width: CGFloat) -> StrokeStyle {
-        StrokeStyle(lineWidth: width, lineCap: .round, lineJoin: .round)
-    }
-
-    private func endpoint(color: Color, systemImage: String) -> some View {
-        Image(systemName: systemImage)
-            .font(.caption2)
-            .foregroundStyle(.white)
-            .padding(6)
-            .background(color, in: .circle)
-            .overlay(Circle().stroke(.white, lineWidth: 2))
-            .shadow(radius: 2, y: 1)
     }
 
     /// Frames the camera around the whole route, with a little breathing room so the line and
@@ -92,7 +92,7 @@ struct RouteMapView: View {
     RouteMapView(track: .mockRidgeHike)
 }
 
-#Preview("Coastal Run") {
+#Preview("Costal Run") {
     RouteMapView(track: .mockCoastalRun)
 }
 

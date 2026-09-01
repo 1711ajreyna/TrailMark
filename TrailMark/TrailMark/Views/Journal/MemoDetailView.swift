@@ -3,6 +3,8 @@ import AVKit
 import MapKit
 import TrailmarkCore
 
+// Plays a memo back. Video goes through AVKit's VideoPlayer, audio through the
+// shared TrailmarkCore.AudioPlayer. Shows the capture location if it was geotagged.
 struct MemoDetailView: View {
     @Environment(AppModel.self) private var model
     let memo: MediaMemo
@@ -26,7 +28,8 @@ struct MemoDetailView: View {
                 if let coordinate = memo.coordinate {
                     Map(initialPosition: .region(MKCoordinateRegion(
                         center: coordinate,
-                        span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)))) {
+                        span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                    ))) {
                         Marker(memo.title, coordinate: coordinate)
                     }
                     .frame(height: 200)
@@ -50,9 +53,11 @@ struct MemoDetailView: View {
             Button {
                 audioPlayer.isPlaying ? audioPlayer.stop() : audioPlayer.play(url: model.media.url(for: memo))
             } label: {
-                Label(audioPlayer.isPlaying ? "Stop" : "Play",
-                      systemImage: audioPlayer.isPlaying ? "stop.circle.fill" : "play.circle.fill")
-                    .font(.title2)
+                Label(
+                    audioPlayer.isPlaying ? "Stop" : "Play",
+                    systemImage: audioPlayer.isPlaying ? "stop.circle.fill" : "play.circle.fill"
+                )
+                .font(.title2)
             }
         }
         .frame(maxWidth: .infinity)

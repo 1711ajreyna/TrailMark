@@ -1,9 +1,22 @@
+//
+//  TrailMarkComplication.swift
+//  TrailMarkComplication
+//
+//  A WidgetKit complication that surfaces today's step count on the watch face and
+//  in the Smart Stack. It reads the value the watch app writes into the shared App
+//  Group (group.com.andrewreyna.TrailMark → "today.steps"); if the group isn't configured
+//  yet it falls back to a sample so the widget still previews.
+//
+//  Note: @main lives in TrailMarkComplicationBundle.swift, so this Widget does NOT
+//  carry @main itself.
+//
+
 import WidgetKit
 import SwiftUI
 
 // MARK: - Shared value (App Group)
 
-/// Reads today's steps from the App Group the watch app publishes to.
+/// Reads today's steps out of the App Group the watch app publishes to.
 enum ComplicationData {
     static let appGroup = "group.com.andrewreyna.TrailMark"
     static let stepsKey = "today.steps"
@@ -26,7 +39,7 @@ struct StepsProvider: TimelineProvider {
     }
 
     func getSnapshot(in context: Context, completion: @escaping (StepsEntry) -> Void) {
-        // Show a sample in the gallery preview; the live value otherwise.
+        // A sample in the gallery preview; the live value everywhere else.
         let steps = context.isPreview ? 6_240 : max(ComplicationData.steps, 0)
         completion(StepsEntry(date: Date(), steps: steps))
     }

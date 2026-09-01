@@ -2,6 +2,9 @@ import SwiftUI
 import Charts
 import TrailmarkCore
 
+// Two-way HealthKit. Saves a sample activity as an HKWorkout (verify it in the
+// Health app), reads last night's sleep, and charts the last 7 days of active
+// energy with Swift Charts. Every query lives in TrailmarkCore.
 struct RecoveryView: View {
     @Environment(AppModel.self) private var model
     @State private var saveState: SaveState = .idle
@@ -100,18 +103,20 @@ struct RecoveryView: View {
 
     private var buttonTitle: String {
         switch saveState {
-        case .saved: return "Saved ✓ — check the Health app"
-        default: return "Save sample workout"
+        case .saved: "Saved ✓ — check the Health app"
+        default: "Save sample workout"
         }
     }
 
     private func saveSampleWorkout() {
         saveState = .saving
         let end = Date()
-        let record = WorkoutRecord(start: end.addingTimeInterval(-1800),
-                                   end: end,
-                                   activeEnergyKcal: 180,
-                                   distanceMeters: 2400)
+        let record = WorkoutRecord(
+            start: end.addingTimeInterval(-1800),
+            end: end,
+            activeEnergyKcal: 180,
+            distanceMeters: 2400
+        )
         Task {
             do {
                 try await model.health.save(record)

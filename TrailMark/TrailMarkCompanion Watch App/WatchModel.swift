@@ -3,6 +3,8 @@ import Observation
 import WidgetKit
 import TrailmarkCore
 
+// Owns the shared TrailmarkCore managers on the wrist. The whole point: the watch
+// REUSES the same managers as the phone — no duplicated model or HealthKit code.
 @MainActor
 @Observable
 final class WatchModel {
@@ -13,23 +15,23 @@ final class WatchModel {
     let connectivity = ConnectivityManager.shared
 
     init() {
-        // When a live workout finishes, sync the result to the phone (Course 3.1).
+        // When a live workout finishes, send the result over to the phone.
         workout.onFinish = { [weak self] record in
             self?.connectivity.sync(workout: record)
         }
         connectivity.activate()
     }
 
-    /// Publishes today's step count to the App Group the complication reads
-    /// (Course 3.4). No-op until the App Group is configured (see MANUAL_SETUP).
+    /// Publishes today's step count into the App Group the complication reads.
+    /// No-op until the App Group is configured (see the setup guide).
     func publishStepsToComplication() {
         let steps = Int(health.todaySummary.steps)
         UserDefaults(suiteName: "group.com.andrewreyna.TrailMark")?.set(steps, forKey: "today.steps")
         WidgetCenter.shared.reloadAllTimelines()
     }
 
-    /// Saves a just-recorded memo locally, then transfers the file to the phone
-    /// so it shows up in the iOS journal (Course 3.1 "Pocket sync").
+    /// Saves a just-recorded memo locally, then transfers the file to the phone so it
+    /// shows up in the iOS journal ("pocket sync").
     func saveAndSync(memoFrom url: URL, duration: TimeInterval) {
         guard let memo = try? media.add(kind: .audio, movingFileFrom: url, duration: duration) else { return }
         connectivity.transfer(memo: memo, fileURL: media.url(for: memo))

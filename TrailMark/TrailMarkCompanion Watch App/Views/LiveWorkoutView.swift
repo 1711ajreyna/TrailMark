@@ -1,14 +1,21 @@
 import SwiftUI
 import TrailmarkCore
 
+// A live workout session. Starts an HKWorkoutSession on the watch, keeps streaming
+// heart rate / elapsed time / energy while backgrounded, and saves a real HKWorkout
+// on finish (which then syncs to the phone).
+//
+// The session logic itself lives in TrailmarkCore.WorkoutSessionManager.
 struct LiveWorkoutView: View {
     @Environment(WatchModel.self) private var model
     @State private var elapsedText = "00:00"
 
     var body: some View {
         VStack(spacing: 12) {
-            metric(model.workout.heartRate > 0 ? "\(Int(model.workout.heartRate))" : "--",
-                   unit: "bpm", symbol: "heart.fill", tint: .red)
+            metric(
+                model.workout.heartRate > 0 ? "\(Int(model.workout.heartRate))" : "--",
+                unit: "bpm", symbol: "heart.fill", tint: .red
+            )
 
             HStack {
                 metric("\(Int(model.workout.activeEnergyKcal))", unit: "kcal",
@@ -31,11 +38,11 @@ struct LiveWorkoutView: View {
         .task {
             await model.health.requestAuthorization()
         }
-        // Tick the elapsed-time readout once a second while running.
+        // Tick the elapsed readout once a second while the session runs.
         .task(id: model.workout.isWorkoutInProgress) {
             while model.workout.isWorkoutInProgress && !Task.isCancelled {
-                let s = Int(model.workout.elapsed)
-                elapsedText = String(format: "%02d:%02d", s / 60, s % 60)
+                let seconds = Int(model.workout.elapsed)
+                elapsedText = String(format: "%02d:%02d", seconds / 60, seconds % 60)
                 try? await Task.sleep(for: .seconds(1))
             }
         }

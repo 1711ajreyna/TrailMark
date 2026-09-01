@@ -13,7 +13,7 @@ struct RecordAudioView: View {
             VStack(spacing: 32) {
                 Spacer()
 
-                Text(timeString(recorder.elapsed))
+                Text(timeString(recorder.elapsedTime))
                     .font(.system(size: 56, design: .rounded).monospacedDigit())
                     .contentTransition(.numericText())
 
@@ -27,12 +27,11 @@ struct RecordAudioView: View {
                 Button {
                     recorder.isRecording ? finish() : begin()
                 } label: {
-                    Text(recorder.isRecording ? "Stop & Save" : "Start Recording")
+                    Text(recorder.isRecording  ? "Stop and Save" : "Start Recording")
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(recorder.isRecording ? Color.red : Color.accentColor,
-                                    in: RoundedRectangle(cornerRadius: 14))
+                        .background(recorder.isRecording ? Color.red : Color.accentColor, in: RoundedRectangle(cornerRadius: 14))
                         .foregroundStyle(.white)
                 }
 
@@ -48,34 +47,30 @@ struct RecordAudioView: View {
                     Button("Cancel") { dismiss() }
                 }
             }
-            // Drive the elapsed-time readout while recording.
             .task(id: recorder.isRecording) {
                 while recorder.isRecording && !Task.isCancelled {
                     recorder.tick()
-                    try? await Task.sleep(for: .seconds(0.1))
+                    try? await Task.sleep(for: .seconds(0.3))
                 }
             }
         }
-    }
-
-    private func begin() {
-        do { try recorder.start() }
-        catch { errorMessage = error.localizedDescription }
-    }
-
-    private func finish() {
-        guard let result = recorder.stop() else { return }
-        try? model.media.add(kind: .audio,
-                             movingFileFrom: result.url,
-                             duration: result.duration,
-                             coordinate: model.location.currentCoordinate)
-        dismiss()
     }
 
     private func timeString(_ interval: TimeInterval) -> String {
         let minutes = Int(interval) / 60
         let seconds = Int(interval) % 60
         return String(format: "%02d:%02d", minutes, seconds)
+    }
+
+    private func begin() {
+        do { try recorder.startRecording() }
+        catch { errorMessage = error.localizedDescription }
+    }
+
+    private func finish() {
+        guard let result = recorder.stop() else { return }
+        _ = try? model.media.add(kind: .audio, movingFileFrom: result.url, duration: result.duration)
+        dismiss()
     }
 }
 
