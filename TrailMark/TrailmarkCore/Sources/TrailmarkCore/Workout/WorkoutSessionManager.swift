@@ -15,7 +15,7 @@ import Observation
 @Observable
 public final class WorkoutSessionManager: NSObject {
 
-    public private(set) var isRunning = false
+    public private(set) var isWorkoutInProgress = false
     public private(set) var heartRate: Double = 0
     public private(set) var activeEnergyKcal: Double = 0
     public private(set) var distanceMeters: Double = 0
@@ -38,7 +38,7 @@ public final class WorkoutSessionManager: NSObject {
     // MARK: - Lifecycle
 
     public func start(activity: HKWorkoutActivityType = .walking) {
-        guard !isRunning else { return }
+        guard !isWorkoutInProgress else { return }
         let configuration = HKWorkoutConfiguration()
         configuration.activityType = activity
         configuration.locationType = .outdoor
@@ -58,12 +58,12 @@ public final class WorkoutSessionManager: NSObject {
             session.startActivity(with: now)
             builder.beginCollection(withStart: now) { [weak self] _, _ in
                 Task { @MainActor in
-                    self?.isRunning = true
+                    self?.isWorkoutInProgress = true
                     self?.startDate = now
                 }
             }
         } catch {
-            isRunning = false
+            isWorkoutInProgress = false
         }
     }
 
@@ -78,7 +78,7 @@ public final class WorkoutSessionManager: NSObject {
         }
     }
 
-    private func finalize(end: Date) {
+    public func finalize(end: Date) {
         let record = WorkoutRecord(
             start: startDate ?? end,
             end: end,
@@ -86,7 +86,7 @@ public final class WorkoutSessionManager: NSObject {
             distanceMeters: distanceMeters,
             averageHeartRate: heartRate > 0 ? heartRate : nil
         )
-        isRunning = false
+        isWorkoutInProgress = false
         onFinish?(record)
         session = nil
         builder = nil
@@ -101,13 +101,13 @@ extension WorkoutSessionManager: HKWorkoutSessionDelegate {
                                            from fromState: HKWorkoutSessionState,
                                            date: Date) {
         Task { @MainActor in
-            self.isRunning = (toState == .running)
+            self.isWorkoutInProgress = (toState == .running)
         }
     }
 
     nonisolated public func workoutSession(_ workoutSession: HKWorkoutSession,
                                            didFailWithError error: Error) {
-        Task { @MainActor in self.isRunning = false }
+        Task { @MainActor in self.isWorkoutInProgress = false }
     }
 }
 

@@ -19,12 +19,12 @@ struct LiveWorkoutView: View {
             Spacer()
 
             Button {
-                model.workout.isRunning ? model.workout.end() : model.workout.start()
+                model.workout.isWorkoutInProgress ? model.workout.end() : model.workout.start()
             } label: {
-                Text(model.workout.isRunning ? "End" : "Start")
+                Text(model.workout.isWorkoutInProgress ? "End" : "Start")
                     .frame(maxWidth: .infinity)
             }
-            .tint(model.workout.isRunning ? .red : .green)
+            .tint(model.workout.isWorkoutInProgress ? .red : .green)
         }
         .padding(.horizontal, 4)
         .navigationTitle("Walk")
@@ -32,8 +32,8 @@ struct LiveWorkoutView: View {
             await model.health.requestAuthorization()
         }
         // Tick the elapsed-time readout once a second while running.
-        .task(id: model.workout.isRunning) {
-            while model.workout.isRunning && !Task.isCancelled {
+        .task(id: model.workout.isWorkoutInProgress) {
+            while model.workout.isWorkoutInProgress && !Task.isCancelled {
                 let s = Int(model.workout.elapsed)
                 elapsedText = String(format: "%02d:%02d", s / 60, s % 60)
                 try? await Task.sleep(for: .seconds(1))
