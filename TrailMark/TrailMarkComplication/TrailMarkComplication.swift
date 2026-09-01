@@ -3,7 +3,7 @@ import SwiftUI
 
 // MARK: - Shared value (App Group)
 
-/// Reads today's steps from the App Group the watch app publishes to.
+/// Reads today's steps out of the App Group the watch app publishes to.
 enum ComplicationData {
     static let appGroup = "group.com.andrewreyna.TrailMark"
     static let stepsKey = "today.steps"
@@ -26,7 +26,7 @@ struct StepsProvider: TimelineProvider {
     }
 
     func getSnapshot(in context: Context, completion: @escaping (StepsEntry) -> Void) {
-        // Show a sample in the gallery preview; the live value otherwise.
+        // A sample in the gallery preview; the live value everywhere else.
         let steps = context.isPreview ? 6_240 : max(ComplicationData.steps, 0)
         completion(StepsEntry(date: Date(), steps: steps))
     }

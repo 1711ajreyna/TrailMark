@@ -5,6 +5,18 @@ import Observation
 import WatchConnectivity
 #endif
 
+// One WatchConnectivity wrapper used by BOTH sides. It picks the transfer type
+// that matches the payload:
+//
+//   • applicationContext — "latest state" (today's summary). Coalesced, so only
+//                          the newest value survives. Cheap, ideal for a
+//                          glanceable mirror.
+//   • transferUserInfo   — queued, guaranteed delivery of discrete records
+//                          (a finished workout / journey). Survives relaunch.
+//   • transferFile       — large binary payloads (a voice memo) with metadata.
+//
+// sendMessage (live) is deliberately avoided: it needs the counterpart to be
+// reachable right now, which a backgrounded phone isn't.
 @MainActor
 @Observable
 public final class ConnectivityManager: NSObject {
@@ -21,8 +33,8 @@ public final class ConnectivityManager: NSObject {
     // App-supplied sinks. The app wires these once at launch.
     public var onReceiveWorkout: ((WorkoutRecord) -> Void)?
     public var onReceiveJourney: ((Journey) -> Void)?
-    /// Called when a media file arrives. Parameters: the moved-in file URL and
-    /// the memo metadata. The handler should `register` it with the MediaStore.
+    /// Called when a media file arrives: the moved-in file URL plus the memo
+    /// metadata. The handler is expected to `register` it with the MediaStore.
     public var onReceiveMediaFile: ((URL, MediaMemo) -> Void)?
 
     private enum PayloadType: String {
@@ -45,14 +57,13 @@ public final class ConnectivityManager: NSObject {
 
     // MARK: - Sending
 
-    /// True only when there's actually a counterpart to talk to. Without this,
-    /// sends on an unpaired phone (e.g. a Simulator with no paired watch) throw
-    /// `WCErrorCodeDeviceNotPaired` and spam the console. We just skip instead.
+    /// True only when there is actually a counterpart to talk to. Without this,
+    /// sends on an unpaired phone (a Simulator with no paired watch) throw
+    /// `WCErrorCodeDeviceNotPaired` and spam the console — we skip instead.
     private var canSend: Bool {
         #if canImport(WatchConnectivity)
         guard let session, session.activationState == .activated else { return false }
         #if os(iOS)
-        // The phone can only sync if a watch is paired and the watch app is installed.
         return session.isPaired && session.isWatchAppInstalled
         #else
         return true
@@ -73,7 +84,7 @@ public final class ConnectivityManager: NSObject {
         #endif
     }
 
-    /// Queue a finished workout for guaranteed delivery (Course 3.1 / 3.2).
+    /// Queue a finished workout for guaranteed delivery.
     public func sync(workout: WorkoutRecord) {
         send(.workout, encoding: workout)
     }
@@ -83,7 +94,7 @@ public final class ConnectivityManager: NSObject {
         send(.journey, encoding: journey)
     }
 
-    /// Transfer a media file with its metadata (Course 3.1 "Pocket sync").
+    /// Transfer a media file with its metadata attached ("pocket sync").
     public func transfer(memo: MediaMemo, fileURL: URL) {
         #if canImport(WatchConnectivity)
         guard canSend,
@@ -110,9 +121,11 @@ public final class ConnectivityManager: NSObject {
 #if canImport(WatchConnectivity)
 extension ConnectivityManager: WCSessionDelegate {
 
-    nonisolated public func session(_ session: WCSession,
-                                    activationDidCompleteWith state: WCSessionActivationState,
-                                    error: Error?) {
+    nonisolated public func session(
+        _ session: WCSession,
+        activationDidCompleteWith state: WCSessionActivationState,
+        error: Error?
+    ) {
         let message = error?.localizedDescription
         Task { @MainActor in
             self.isActivated = (state == .activated)
@@ -126,20 +139,29 @@ extension ConnectivityManager: WCSessionDelegate {
     }
 
     // Latest-state mirror.
-    nonisolated public func session(_ session: WCSession,
-                                    didReceiveApplicationContext applicationContext: [String: Any]) {
+    nonisolated public func session(
+        _ session: WCSession,
+        didReceiveApplicationContext applicationContext: [String: Any]
+    ) {
         handle(dictionary: applicationContext)
     }
 
     // Queued discrete records.
-    nonisolated public func session(_ session: WCSession,
-                                    didReceiveUserInfo userInfo: [String: Any]) {
+    nonisolated public func session(
+        _ session: WCSession,
+        didReceiveUserInfo userInfo: [String: Any]
+    ) {
         handle(dictionary: userInfo)
     }
 
     // Incoming media file.
     nonisolated public func session(_ session: WCSession, didReceive file: WCSessionFile) {
+        // Read the metadata out here: `[String: Any]` isn't Sendable, so only the
+        // Strings we actually need may cross into the MainActor task below.
         let metadata = file.metadata ?? [:]
+        let type = metadata["type"] as? String
+        let json = metadata["memo"] as? String
+
         // Copy out of the inbox immediately — the URL is only valid in this call.
         let tempURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(file.fileURL.lastPathComponent)
@@ -147,9 +169,8 @@ extension ConnectivityManager: WCSessionDelegate {
         try? FileManager.default.copyItem(at: file.fileURL, to: tempURL)
 
         Task { @MainActor in
-            guard metadata["type"] as? String == PayloadType.memo.rawValue,
-                  let json = metadata["memo"] as? String,
-                  let data = json.data(using: .utf8),
+            guard type == PayloadType.memo.rawValue,
+                  let data = json?.data(using: .utf8),
                   let memo = try? JSONDecoder.trailmark.decode(MediaMemo.self, from: data) else { return }
             self.onReceiveMediaFile?(tempURL, memo)
         }

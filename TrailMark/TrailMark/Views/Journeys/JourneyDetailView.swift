@@ -2,6 +2,9 @@ import SwiftUI
 import MapKit
 import TrailmarkCore
 
+// The unified "journey detail" screen: route polyline + memo pins on one map, the
+// activity stats, and the captured media all in one place. This is where the route,
+// health and media builds come together.
 struct JourneyDetailView: View {
     @Environment(AppModel.self) private var model
     let journey: Journey
@@ -42,8 +45,12 @@ struct JourneyDetailView: View {
 
     private var cameraPosition: MapCameraPosition {
         if let first = journey.track.points.first {
-            return .region(MKCoordinateRegion(center: first.coordinate,
-                                              span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)))
+            return .region(
+                MKCoordinateRegion(
+                    center: first.coordinate,
+                    span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
+                )
+            )
         }
         return .automatic
     }

@@ -1,82 +1,54 @@
 import Foundation
-import CoreLocation
+import CoreLocation // GPS
 import Observation
 
 @MainActor
 @Observable
-public final class LocationManager: NSObject, CLLocationManagerDelegate {
+public class LocationManager: NSObject {
+    public internal(set) var authorizationStatus: CLAuthorizationStatus
+    public internal(set) var currentLocation: CLLocation?
+    public internal(set) var isTracking = false
+    public internal(set) var track = RouteTrack()
 
-    public private(set) var authorizationStatus: CLAuthorizationStatus
-    public private(set) var currentLocation: CLLocation?
-    public private(set) var isRecording = false
-    /// The track recorded since `startRecording()` was last called.
-    public private(set) var track = RouteTrack()
-
-    private let manager = CLLocationManager()
+    private let locationManager = CLLocationManager() // CLLM is a NSObj
 
     public override init() {
-        authorizationStatus = manager.authorizationStatus
+        authorizationStatus = locationManager.authorizationStatus
         super.init()
-        manager.delegate = self
-        manager.desiredAccuracy = kCLLocationAccuracyBest
-        // 10m filter keeps the track readable and is gentle on the battery —
-        // the power conversation Course 3.3 picks up.
-        manager.distanceFilter = 10
+        locationManager.delegate = self
+
+        // Setup Settings for Core Location
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.distanceFilter = 10
     }
 
     public var currentCoordinate: CLLocationCoordinate2D? {
         currentLocation?.coordinate
     }
 
-    // MARK: - Authorization
+    // MARK: - Authorization Flow
 
     public func requestWhenInUseAuthorization() {
-        manager.requestWhenInUseAuthorization()
+        locationManager.requestWhenInUseAuthorization()
     }
 
-    /// A one-shot location request, handy for geotagging a memo right now.
     public func requestOneShotLocation() {
-        manager.requestLocation()
+        locationManager.requestLocation()
     }
 
     // MARK: - Recording a track
 
     public func startRecording() {
         track = RouteTrack()
-        isRecording = true
-        manager.startUpdatingLocation()
+        isTracking = true
+        // This method is the one that is going to turn the GPS tracking for continuous reading
+        locationManager.startUpdatingLocation()
     }
 
     @discardableResult
     public func stopRecording() -> RouteTrack {
-        isRecording = false
-        manager.stopUpdatingLocation()
+        isTracking = false
+        locationManager.stopUpdatingLocation()
         return track
-    }
-
-    // MARK: - CLLocationManagerDelegate
-
-    nonisolated public func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        Task { @MainActor in
-            self.authorizationStatus = status
-        }
-    }
-
-    nonisolated public func locationManager(_ manager: CLLocationManager,
-                                            didUpdateLocations locations: [CLLocation]) {
-        let points = locations.map(TrackPoint.init(location:))
-        let last = locations.last
-        Task { @MainActor in
-            self.currentLocation = last
-            if self.isRecording {
-                self.track.points.append(contentsOf: points)
-            }
-        }
-    }
-
-    nonisolated public func locationManager(_ manager: CLLocationManager,
-                                            didFailWithError error: Error) {
-        // Location failures are common and transient (e.g. no fix indoors).
-        // We swallow them so the UI keeps whatever track it has.
     }
 }

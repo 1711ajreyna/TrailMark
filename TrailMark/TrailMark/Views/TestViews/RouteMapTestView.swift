@@ -12,19 +12,21 @@ struct RouteMapTestView: View {
     private let samples: [Sample] = [
         Sample(name: "Park Loop", track: .mockParkLoop),
         Sample(name: "Ridge Hike", track: .mockRidgeHike),
-        Sample(name: "Coastal Run", track: .mockCoastalRun),
-        Sample(name: "Just Started", track: .mockJustStarted),
+        Sample(name: "Costal Run", track: .mockCoastalRun),
+        Sample(name: "Just Started (Not Finished)", track: .mockJustStarted),
         Sample(name: "Empty", track: .mockEmpty)
     ]
 
     @State private var selectedIndex = 0
-    @State private var showsEndpoints = true
+    @State private var showEndpoints = true
 
     private var selected: Sample { samples[selectedIndex] }
 
     var body: some View {
         NavigationStack {
-            RouteMapView(track: selected.track, showsEndpoints: showsEndpoints)
+            // Any UI To display the selector
+            // RouteMapView()
+            RouteMapView(track: selected.track, showsEndpoints: showEndpoints)
                 .ignoresSafeArea(edges: .bottom)
                 .overlay(alignment: .bottom) { statsCard }
                 .navigationTitle(selected.name)
@@ -32,16 +34,15 @@ struct RouteMapTestView: View {
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
                         Picker("Track", selection: $selectedIndex) {
-                            ForEach(samples.indices, id: \.self) { index in
+                            ForEach(samples.indices, id: \.self) {index in
                                 Text(samples[index].name).tag(index)
                             }
                         }
                         .pickerStyle(.menu)
                     }
-
                     ToolbarItem(placement: .topBarTrailing) {
-                        Toggle(isOn: $showsEndpoints) {
-                            Label("Endpoints", systemImage: "flag")
+                        Toggle(isOn: $showEndpoints) {
+                            Label("Endpoints", systemImage: "Flag")
                         }
                         .toggleStyle(.button)
                         .labelStyle(.iconOnly)
@@ -50,21 +51,15 @@ struct RouteMapTestView: View {
         }
     }
 
-    // MARK: - Stats
-
     private var statsCard: some View {
         let track = selected.track
 
         return HStack(alignment: .top, spacing: 16) {
             stat("Points", "\(track.points.count)")
-            stat("Distance", distanceText(track))
-            stat("Duration", durationText(track))
-            stat("Gain", gainText(track))
+            stat("Distance", "\(distanceText(track))")
+            stat("Duration", "\(durationText(track))")
+            stat("Gain", "\(gainText(track))")
         }
-        .padding(.vertical, 12)
-        .padding(.horizontal, 16)
-        .background(.regularMaterial, in: .rect(cornerRadius: 16))
-        .padding()
     }
 
     private func stat(_ label: String, _ value: String) -> some View {
@@ -88,24 +83,14 @@ struct RouteMapTestView: View {
         guard let start = track.points.first?.timestamp,
               let end = track.points.last?.timestamp,
               end > start
-        else { return "—" }
+        else { return "-" }
 
-        return Duration.seconds(end.timeIntervalSince(start))
-            .formatted(.time(pattern: .minuteSecond))
+        return Duration.seconds(end.timeIntervalSince(start)).formatted(.time(pattern: .minuteSecond))
     }
 
-    /// Total climbing only — descents don't count toward gain.
     private func gainText(_ track: RouteTrack) -> String {
-        guard track.points.count > 1 else { return "—" }
-
-        var gain: Double = 0
-        for index in 1..<track.points.count {
-            let delta = track.points[index].altitude - track.points[index - 1].altitude
-            if delta > 0 { gain += delta }
-        }
-
-        return Measurement(value: gain, unit: UnitLength.meters)
-            .formatted(.measurement(width: .abbreviated, usage: .asProvided))
+        return Measurement(value: track.altitudeGain, unit: UnitLength.meters)
+                .formatted(.measurement(width: .abbreviated, usage: .asProvided))
     }
 }
 

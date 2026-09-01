@@ -19,7 +19,6 @@ struct ContentView: View {
                 .tabItem { Label("Journeys", systemImage: "map.fill") }
         }
         .task {
-            // Request HealthKit access on launch, then load today's data.
             await model.health.requestAuthorization()
             await model.health.refreshToday()
             model.mirrorTodayToWatch()

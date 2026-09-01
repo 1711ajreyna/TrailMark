@@ -5,10 +5,8 @@ import Observation
 @MainActor
 @Observable
 public final class AudioRecorder {
-
     public private(set) var isRecording = false
-    public private(set) var elapsed: TimeInterval = 0
-    /// Set after `stop()` — the temp file you hand to `MediaStore.add`.
+    public private(set) var elapsedTime: TimeInterval = 0
     public private(set) var lastRecordingURL: URL?
 
     private var recorder: AVAudioRecorder?
@@ -16,9 +14,19 @@ public final class AudioRecorder {
 
     public init() {}
 
-    /// Configures the audio session and begins recording to a temp .m4a file.
-    public func start() throws {
+    public func configureSession() throws {
+        let session = AVAudioSession.sharedInstance()
+        try session.setCategory(.playAndRecord, mode: .default, options: [.duckOthers])
+        try session.setActive(true)
+    }
+
+    public func deactivateSession() {
+        try? AVAudioSession.sharedInstance().setActive(false, options: [.notifyOthersOnDeactivation])
+    }
+
+    public func startRecording() throws {
         try configureSession()
+        // This line is goint to create a temporary location for the just recorded audio file
         let url = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
             .appendingPathExtension("m4a")
@@ -27,49 +35,35 @@ public final class AudioRecorder {
             AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
             AVSampleRateKey: 44_100.0,
             AVNumberOfChannelsKey: 1,
-            AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
+            AVEncoderAudioQualityKey: AVAudioQuality.max.rawValue
         ]
 
         let recorder = try AVAudioRecorder(url: url, settings: settings)
         recorder.record()
+
         self.recorder = recorder
         self.startDate = Date()
         self.isRecording = true
-        self.elapsed = 0
+        self.elapsedTime = 0
     }
 
-    /// Stops recording and returns the file URL + measured duration.
     @discardableResult
     public func stop() -> (url: URL, duration: TimeInterval)? {
         guard let recorder else { return nil }
         let duration = startDate.map { Date().timeIntervalSince($0) } ?? recorder.currentTime
         recorder.stop()
         let url = recorder.url
+
         self.recorder = nil
         self.isRecording = false
         self.lastRecordingURL = url
-        self.elapsed = duration
         deactivateSession()
         return (url, duration)
     }
 
-    /// Call from a timer/TimelineView tick to refresh the elapsed readout.
     public func tick() {
         guard isRecording, let startDate else { return }
-        elapsed = Date().timeIntervalSince(startDate)
+        elapsedTime = Date().timeIntervalSince(startDate)
     }
 
-    private func configureSession() throws {
-        #if !os(macOS)
-        let session = AVAudioSession.sharedInstance()
-        try session.setCategory(.playAndRecord, mode: .default, options: [.duckOthers])
-        try session.setActive(true)
-        #endif
-    }
-
-    private func deactivateSession() {
-        #if !os(macOS)
-        try? AVAudioSession.sharedInstance().setActive(false, options: [.notifyOthersOnDeactivation])
-        #endif
-    }
 }

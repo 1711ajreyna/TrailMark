@@ -1,6 +1,9 @@
 import SwiftUI
 import TrailmarkCore
 
+// Sensing motion at the source. Surfaces a derived signal (cadence + activity type)
+// out of Core Motion through the shared MotionManager. The wrist is the ideal place
+// to sense motion; the cost of always-on sampling is the performance conversation.
 struct MotionView: View {
     @Environment(WatchModel.self) private var model
 
