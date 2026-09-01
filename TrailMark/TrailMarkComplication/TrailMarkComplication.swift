@@ -1,16 +1,3 @@
-//
-//  TrailMarkComplication.swift
-//  TrailMarkComplication
-//
-//  A WidgetKit complication that surfaces today's step count on the watch face and
-//  in the Smart Stack. It reads the value the watch app writes into the shared App
-//  Group (group.com.andrewreyna.TrailMark → "today.steps"); if the group isn't configured
-//  yet it falls back to a sample so the widget still previews.
-//
-//  Note: @main lives in TrailMarkComplicationBundle.swift, so this Widget does NOT
-//  carry @main itself.
-//
-
 import WidgetKit
 import SwiftUI
 

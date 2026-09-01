@@ -1,10 +1,3 @@
-//
-//  TrailMarkCompanionApp.swift
-//  TrailMarkCompanion Watch App
-//
-//  Created by Ramses Garcia on 03/08/26.
-//
-
 import SwiftUI
 
 @main

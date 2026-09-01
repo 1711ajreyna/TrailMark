@@ -1,13 +1,3 @@
-//
-//  ARModelView.swift
-//  TrailMark_CH9 (iOS)
-//
-//  Pass-through camera, one USD model, placed by tapping where you want it. ARKit finds
-//  the surface; the tap decides where on it the object stands. Tap again to move it.
-//
-//  Needs a real device — world tracking does not exist on the Simulator.
-//
-
 import SwiftUI
 import RealityKit
 

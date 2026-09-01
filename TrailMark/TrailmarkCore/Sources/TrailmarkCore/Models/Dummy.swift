@@ -1,10 +1,3 @@
-//
-//  Dummy.swift
-//  TrailmarkCore
-//
-//  Created by Ramses Garcia on 03/08/26.
-//
-
 import Foundation
 
 public struct Dummy {

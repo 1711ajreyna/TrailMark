@@ -1,18 +1,3 @@
-//
-//  ARObjectPreviewView.swift
-//  TrailMark_CH9 (iOS)
-//
-//  A standalone "see it in your space" screen: one 3D object, anchored to a real
-//  horizontal surface through the rear camera, sized in real metres so you can judge
-//  how big the thing actually is before you buy it or carry it up a hill.
-//
-//  Isolated on purpose — it reads no app state and writes none back, so it can be
-//  pushed from anywhere (or previewed on its own) without touching the rest of the app.
-//  It lands on the first surface ARKit finds; drag to spin, pinch to resize.
-//
-//  Needs a real device: ARKit world tracking does not exist on the Simulator.
-//
-
 import SwiftUI
 import RealityKit
 import ARKit
